@@ -1,0 +1,69 @@
+# --- Experiment configurations --------------------------------------------------------------------
+experiment_name: lstm-wv-l1o-100086
+
+run_dir: ./runs/
+
+train_basin_file: ./data/wv/leave_one_out/wv_basins_train_100086.txt
+validation_basin_file: ./data/wv/leave_one_out/wv_basins_train_100086.txt
+test_basin_file: ./data/wv/leave_one_out/wv_basins_test_100086.txt
+
+train_start_date: '01/01/1990'
+train_end_date: '31/12/2015'
+validation_start_date: '01/01/2016'
+validation_end_date: '31/12/2020'
+test_start_date: '01/12/2010'
+test_end_date: '31/12/2020'
+
+device: cuda:0
+seed: 701654
+
+# --- Validation configuration ---------------------------------------------------------------------
+validate_every: 1
+validate_n_random_basins: 1
+
+metrics:
+- NSE
+
+# --- Model configuration --------------------------------------------------------------------------
+model: cudalstm
+head: regression
+output_activation: linear
+
+hidden_size: 64
+initial_forget_bias: 3
+output_dropout: 0.4
+
+# --- Training configuration -----------------------------------------------------------------------
+optimizer: Adam
+loss: NSE
+
+learning_rate:
+    0: 1e-2
+    20: 5e-3
+    25: 1e-3
+batch_size: 256
+epochs: 30
+clip_gradient_norm: 1
+
+predict_last_n: 1
+seq_length: 365
+
+num_workers: 8
+save_weights_every: 1
+
+# --- Logging configuration -----------------------------------------------------------------------
+log_interval: 5
+log_tensorboard: True
+log_n_figures: 1
+
+# --- Data configurations --------------------------------------------------------------------------
+dataset: generic
+data_dir: ./data/wv
+
+dynamic_inputs:
+- precipitation
+target_variables:
+- discharge_spec
+
+clip_targets_to_zero:
+- discharge_spec
