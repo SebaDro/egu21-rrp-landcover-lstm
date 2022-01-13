@@ -89,3 +89,16 @@ def calculate_yearly_nse(run_dir: str, exp_name: str, start_year: int, end_year:
     result = pd.DataFrame(data={"basin_id": id_arr, "nse": nse_arr, "exp_name": exp_arr, "year": year_arr})
     return result
 
+def gather_simulation_timeseries(run_dir, exp_names, basin):
+    res_dict = {}
+    for exp in exp_names:
+        folders = os.listdir(run_dir)
+
+        exp_folders = list(filter(lambda x: x.startswith(exp), folders))
+        exp_run_dir = Path(run_dir + exp_folders[0])
+        with open(exp_run_dir / "test" / "model_epoch030" / "test_results.p", "rb") as fp:
+            results = pickle.load(fp)
+            xd = results[basin]["1D"]["xr"]
+            exp = exp.rstrip("-" + basin)
+            res_dict[exp] = xd
+    return res_dict
